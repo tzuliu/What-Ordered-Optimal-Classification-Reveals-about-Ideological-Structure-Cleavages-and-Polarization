@@ -6,8 +6,6 @@
 
 2. *Replication R codes* under the folder **Replication R code**.
 
-3. *Demonstrative notebook files* for replication codes under the folder **Replication Notebook Files**.
+3. The final version of the paper under the folder **Paper**.
 
-4. The final version of the paper under the folder **Paper**.
-
-5. For the R package "ooc," please refer to [ooc](https://github.com/tzuliu/ooc).
+4. For the R package "ooc," please refer to [ooc](https://github.com/tzuliu/ooc).
