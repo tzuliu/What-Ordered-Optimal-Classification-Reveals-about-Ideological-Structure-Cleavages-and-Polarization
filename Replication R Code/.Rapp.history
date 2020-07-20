@@ -1,0 +1,292 @@
+uninstall.packages("ooc")
+uninstall.package("ooc")
+remove.packages("ooc")
+remove.packages(ooc)
+library(ooc)
+library(devtools)
+devtools::install_github('tzuliu/ooc/ooc')
+library(oc)
+oc(sc.rc, dims=2, polarity=c(1,2))
+load("/Users/tpliu/Desktop/france4.rda")
+library(oc)
+library(pscl)
+ls()
+head(france4)
+rc <- rollcall(data=france4[,6:ncol(france4)],#
+    yea=1,#
+    nay=6,#
+    missing=7,#
+    notInLegis=c(8,9),#
+    legis.names=paste(france4$NAME,france4$CASEID,sep=""),#
+    vote.names=colnames(france4[6:ncol(france4)]),#
+    legis.data=france4[,2:5],#
+    vote.data=NULL,#
+    desc="National Assembly of the French Fourth Republic")
+rc
+result <- oc(rc, dims=2, minvotes=20, lop=0.025,#
+    polarity=c(2,2), verbose=FALSE)
+summary(result)
+result1 <- oc(rc, dims=1, minvotes=20, lop=0.025,#
+    polarity=2, verbose=FALSE)#
+result2 <- oc(rc, dims=2, minvotes=20, lop=0.025,#
+    polarity=c(2,2), verbose=FALSE)#
+result <- result2#
+##
+print(c(result1$fits,result2$fits))
+oc1 <- result$legislators$coord1D
+oc2 <- result$legislators$coord2D
+party <- rc$legis.data$PAR
+plot(oc1, oc2,
+main="The National Assembly of the French Fourth Republic",
+xlab="First Dimension\nC = COMM, S = SOC, D = CHRIST DEMS, P = POUJ",
+ylab="Second Dimension",
+xlim=c(-1,1), ylim=c(-1,1), asp=1, type="n")
+points(oc1[party == 1], oc2[party == 1], pch="C", col="gray15", font=2)
+points(oc1[party == 2], oc2[party == 2], pch="S", col="gray30", font=2)
+points(oc1[party == 5], oc2[party == 5], pch="D", col="gray45", font=2)
+points(oc1[party == 7], oc2[party == 7], pch="P", col="gray60", font=2)
+A <- matrix(c(cos(45), -sin(45), sin(45), cos(45)), nrow=2, ncol=2,#
+    byrow=TRUE)
+rot.oc <- cbind(result$legislators$coord1D, result$legislators$coord2D)
+for (i in 1:nrow(rot.oc)){#
+rot.oc[i,] <- rot.oc[i,] %*% A#
+}
+oc1 <- rot.oc[,1]
+oc2 <- rot.oc[,2]
+rot.NV <- cbind(result$rollcalls[,6], result$rollcalls[,7])
+for (i in 1:nrow(rot.NV)){#
+rot.NV[i,] <- rot.NV[i,] %*% A#
+}
+N1 <- rot.NV[,1]
+N2 <- rot.NV[,2]
+windows()
+plot(oc1, oc2,#
+    main="The National Assembly of the French Fourth Republic\n(with Rotation)",#
+    xlab="First Dimension (Left - Right)\nC = COMM, S = SOC, D = CHRIST DEMS, P = POUJ",#
+    ylab="Second Dimension (Pro / Anti-Regime)",#
+    xlim=c(-1,1), ylim=c(-1,1), asp=1, type="n")
+points(oc1[party == 1], oc2[party == 1], pch="C", col="gray15", font=2)#
+#  Socialists#
+points(oc1[party == 2], oc2[party == 2], pch="S", col="gray30", font=2)#
+#  Christian Democrats#
+points(oc1[party == 5], oc2[party == 5], pch="D", col="gray45", font=2)#
+#  Poujadists#
+points(oc1[party == 7], oc2[party == 7], pch="P", col="gray60", font=2)
+orignrollcall <- 3090
+nrollcall <- which(colnames(rc$votes)==paste("V",orignrollcall,sep=""))
+vote <- as.integer(rc$votes[,nrollcall])
+ws <- result$rollcalls[,8]#
+xws <- ws[nrollcall]*N1[nrollcall]#
+yws <- ws[nrollcall]*N2[nrollcall]#
+N1W <- N1[nrollcall]#
+N2W <- N2[nrollcall]
+plot(oc1, oc2,#
+    main="Regulation of Labor Conflicts\n6 February 1957 (Roll Call ID V3090)",#
+    xlab="First Dimension (Left - Right)\nC = COMM, S = SOC, D = CHRIST DEMS, P = POUJ",#
+    ylab="Second Dimension (Pro / Anti-Regime)",#
+    xlim=c(-1,1), ylim=c(-1,1), asp=1, type="n")
+#  Communists#
+points(oc1[party == 1 & vote==1], oc2[party == 1 & vote==1], pch="C", col="gray33", font=2)#
+#  Socialists#
+points(oc1[party == 2 & vote==1], oc2[party == 2 & vote==1], pch="S", col="gray33", font=2)#
+#  Christian Democrats#
+points(oc1[party == 5 & vote==1], oc2[party == 5 & vote==1], pch="D", col="gray33", font=2)#
+#  Poujadists#
+points(oc1[party == 7 & vote==1], oc2[party == 7 & vote==1], pch="P", col="gray33", font=2)
+#  Communists#
+points(oc1[party == 1 & vote==6], oc2[party == 1 & vote==6], pch="C", col="gray67", font=2)#
+#  Socialists#
+points(oc1[party == 2 & vote==6], oc2[party == 2 & vote==6], pch="S", col="gray67", font=2)#
+#  Christian Democrats#
+points(oc1[party == 5 & vote==6], oc2[party == 5 & vote==6], pch="D", col="gray67", font=2)#
+#  Poujadists#
+points(oc1[party == 7 & vote==6], oc2[party == 7 & vote==6], pch="P", col="gray67", font=2)
+segments(xws+N2W, yws-N1W, xws-N2W, yws+N1W, lwd=2, col="black")
+names(result)
+head(result$rollcalls)
+N1
+length(N!)
+length(N1)
+nrow(A)
+A
+head(rot.NA)
+head(rot.NV)
+names(result)
+head(result$rollcalls)
+head(ws)
+ws[nrollcall]
+ws
+dim(ws)
+length(ws)
+nrollcall
+head(result$rollcalls)
+xws
+yws
+N1W
+N2W
+plot(oc1, oc2,#
+    main="Regulation of Labor Conflicts\n6 February 1957 (Roll Call ID V3090)",#
+    xlab="First Dimension (Left - Right)\nC = COMM, S = SOC, D = CHRIST DEMS, P = POUJ",#
+    ylab="Second Dimension (Pro / Anti-Regime)",#
+    xlim=c(-1,1), ylim=c(-1,1), asp=1, type="n")#
+##
+#  Vote Yea#
+##
+#  Communists#
+points(oc1[party == 1 & vote==1], oc2[party == 1 & vote==1], pch="C", col="gray33", font=2)#
+#  Socialists#
+points(oc1[party == 2 & vote==1], oc2[party == 2 & vote==1], pch="S", col="gray33", font=2)#
+#  Christian Democrats#
+points(oc1[party == 5 & vote==1], oc2[party == 5 & vote==1], pch="D", col="gray33", font=2)#
+#  Poujadists#
+points(oc1[party == 7 & vote==1], oc2[party == 7 & vote==1], pch="P", col="gray33", font=2)#
+##
+#  Vote Nay#
+##
+#  Communists#
+points(oc1[party == 1 & vote==6], oc2[party == 1 & vote==6], pch="C", col="gray67", font=2)#
+#  Socialists#
+points(oc1[party == 2 & vote==6], oc2[party == 2 & vote==6], pch="S", col="gray67", font=2)#
+#  Christian Democrats#
+points(oc1[party == 5 & vote==6], oc2[party == 5 & vote==6], pch="D", col="gray67", font=2)#
+#  Poujadists#
+points(oc1[party == 7 & vote==6], oc2[party == 7 & vote==6], pch="P", col="gray67", font=2)
+?segments
+segments(xws+N2W, yws-N1W, xws-N2W, yws+N1W, lwd=2, col="black")
+kpyea <- sum(vote==1)
+kpnay <- sum(vote==6)
+xws+N2W
+yws-N1W
+xws-N2W
+yws+N1W
+segment
+segment()
+segments()
+segments
+?segments
+colnames(rc$votes)
+which(colnames(rc$votes)==paste("V",orignrollcall,sep=""))
+colnames(rc$votes)==paste("V",orignrollcall,sep="")
+paste("V",orignrollcall,sep="")
+nrollcall
+head(result$rollcalls)
+ws[nrollcall]
+N1[nrollcall]
+result$dimension
+names(result)
+result$eigenvalues
+ws[nrollcall]
+head(result$rocall)
+head(result$rocalls)
+head(result)
+names(result)
+head(result$rollcalls)
+head(oc1)
+head(oc2)
+plot(oc1, oc2,#
+    main="Regulation of Labor Conflicts\n6 February 1957 (Roll Call ID V3090)",#
+    xlab="First Dimension (Left - Right)\nC = COMM, S = SOC, D = CHRIST DEMS, P = POUJ",#
+    ylab="Second Dimension (Pro / Anti-Regime)",#
+    xlim=c(-1,1), ylim=c(-1,1), asp=1, type="n")
+points(oc1[party == 1 & vote==1], oc2[party == 1 & vote==1], pch="C", col="gray33", font=2)
+points(oc1[party == 2 & vote==1], oc2[party == 2 & vote==1], pch="S", col="gray33", font=2)
+points(oc1[party == 5 & vote==1], oc2[party == 5 & vote==1], pch="D", col="gray33", font=2)
+points(oc1[party == 7 & vote==1], oc2[party == 7 & vote==1], pch="P", col="gray33", font=2)
+points(oc1[party == 1 & vote==6], oc2[party == 1 & vote==6], pch="C", col="gray67", font=2)#
+#  Socialists#
+points(oc1[party == 2 & vote==6], oc2[party == 2 & vote==6], pch="S", col="gray67", font=2)#
+#  Christian Democrats#
+points(oc1[party == 5 & vote==6], oc2[party == 5 & vote==6], pch="D", col="gray67", font=2)#
+#  Poujadists#
+points(oc1[party == 7 & vote==6], oc2[party == 7 & vote==6], pch="P", col="gray67", font=2)
+segments(xws+N2W, yws-N1W, xws-N2W, yws+N1W, lwd=2, col="black")
+kpyea <- sum(vote==1)#
+kpnay <- sum(vote==6)#
+text(-0.9,1.00,paste("Yea = ",kpyea),col="gray33",font=2,cex=1.0)#
+text(-0.9,0.90,paste("Nay = ",kpnay),col="gray67",font=2,cex=1.0)#
+##
+text(0.10,0.20,"Predicted\nYea",col="gray33",font=2,cex=1.0)#
+text(-0.80,0.00,"Predicted\nNay",col="gray67",font=2,cex=1.0)
+polarity <- oc1*N1W + oc2*N2W - ws[nrollcall]
+errors1 <- vote==1 & polarity >= 0#
+errors2 <- vote==6 & polarity <= 0#
+errors3 <- vote==1 & polarity <= 0#
+errors4 <- vote==6 & polarity >= 0#
+kerrors12 <- sum(errors1==1,na.rm=T) + sum(errors2==1,na.rm=T)#
+kerrors34 <- sum(errors3==1,na.rm=T) + sum(errors4==1,na.rm=T)#
+if (kerrors12 >= kerrors34){#
+   yeaerror <- errors3#
+   nayerror <- errors4#
+}#
+if (kerrors12 < kerrors34){#
+   yeaerror <- errors1#
+   nayerror <- errors2#
+}#
+kerrorsmin <- min(kerrors12,kerrors34)#
+PRE <- (min(kpyea,kpnay)-kerrorsmin) / min(kpyea,kpnay)
+plot(oc1, oc2,#
+    main="Regulation of Labor Conflicts (Errors Only)\n6 February 1957 (Roll Call ID V3090)",#
+    xlab="First Dimension (Left - Right)\nC = COMM, S = SOC, D = CHRIST DEMS, P = POUJ",#
+    ylab="Second Dimension (Pro / Anti-Regime)",#
+    xlim=c(-1,1), ylim=c(-1,1), asp=1, type="n")#
+##
+text(-0.9,1.00,paste("Yea = ",kpyea), col="gray33", font=2)#
+text(-0.9,0.90,paste("Nay = ",kpnay), col="gray67", font=2)#
+text(-0.9,0.80,paste("Errors = ",kerrorsmin), col="black", font=2)#
+text(-0.9,0.70,paste("PRE = ", round(PRE,2)), col="black", font=2)#
+##
+segments(xws+N2W, yws-N1W, xws-N2W, yws+N1W, lwd=2, col="black")#
+##
+text(0.10,0.20,"Predicted\nYea",col="gray33",font=2,cex=1.0)#
+text(-0.80,0.00,"Predicted\nNay",col="gray67",font=2,cex=1.0)#
+##
+#  Vote Nay#
+##
+#  Communists#
+points(oc1[nayerror & party == 1 & vote==6], oc2[nayerror & party == 1 & vote==6], pch="C", col="gray67", font=2)#
+#  Socialists#
+points(oc1[nayerror & party == 2 & vote==6], oc2[nayerror & party == 2 & vote==6], pch="S", col="gray67", font=2)#
+#  Christian Democrats#
+points(oc1[nayerror & party == 5 & vote==6], oc2[nayerror & party == 5 & vote==6], pch="D", col="gray67", font=2)#
+#  Poujadists#
+points(oc1[nayerror & party == 7 & vote==6], oc2[nayerror & party == 7 & vote==6], pch="P", col="gray67", font=2)#
+##
+#  Vote Yea#
+##
+#  Communists#
+points(oc1[yeaerror & party == 1 & vote==1], oc2[yeaerror & party == 1 & vote==1], pch="C", col="gray33", font=2)#
+#  Socialists#
+points(oc1[yeaerror & party == 2 & vote==1], oc2[yeaerror & party == 2 & vote==1], pch="S", col="gray33", font=2)#
+#  Christian Democrats#
+points(oc1[yeaerror & party == 5 & vote==1], oc2[yeaerror & party == 5 & vote==1], pch="D", col="gray33", font=2)#
+#  Poujadists#
+points(oc1[yeaerror & party == 7 & vote==1], oc2[yeaerror & party == 7 & vote==1], pch="P", col="gray33", font=2)
+plot(oc1, oc2,#
+    main="Regulation of Labor Conflicts\n6 February 1957 (Roll Call ID V3090)",#
+    xlab="First Dimension (Left - Right)\nC = COMM, S = SOC, D = CHRIST DEMS, P = POUJ",#
+    ylab="Second Dimension (Pro / Anti-Regime)",#
+    xlim=c(-1,1), ylim=c(-1,1), asp=1, type="n")#
+##
+#  Vote Yea#
+##
+#  Communists#
+points(oc1[party == 1 & vote==1], oc2[party == 1 & vote==1], pch="C", col="gray33", font=2)#
+#  Socialists#
+points(oc1[party == 2 & vote==1], oc2[party == 2 & vote==1], pch="S", col="gray33", font=2)#
+#  Christian Democrats#
+points(oc1[party == 5 & vote==1], oc2[party == 5 & vote==1], pch="D", col="gray33", font=2)#
+#  Poujadists#
+points(oc1[party == 7 & vote==1], oc2[party == 7 & vote==1], pch="P", col="gray33", font=2)#
+##
+#  Vote Nay#
+##
+#  Communists#
+points(oc1[party == 1 & vote==6], oc2[party == 1 & vote==6], pch="C", col="gray67", font=2)#
+#  Socialists#
+points(oc1[party == 2 & vote==6], oc2[party == 2 & vote==6], pch="S", col="gray67", font=2)#
+#  Christian Democrats#
+points(oc1[party == 5 & vote==6], oc2[party == 5 & vote==6], pch="D", col="gray67", font=2)#
+#  Poujadists#
+points(oc1[party == 7 & vote==6], oc2[party == 7 & vote==6], pch="P", col="gray67", font=2)#
+##
+segments(xws+N2W, yws-N1W, xws-N2W, yws+N1W, lwd=2, col="black")
